@@ -1,0 +1,215 @@
+from googletrans import Translator
+
+
+# ============================================
+# FUNCIÓN 1: Buscar/traducir palabra desde cualquier idioma
+# ============================================
+
+def buscar_palabra(palabra, idioma_origen='auto'):
+    """
+    Función 1: Recibe una palabra en CUALQUIER idioma
+    y la identifica / traduce.
+    
+    Args:
+        palabra (str): Palabra en cualquier idioma
+        idioma_origen (str): 'auto' detecta automáticamente
+    
+    Returns:
+        dict: Información de la palabra detectada
+    """
+    translator = Translator()
+    
+    try:
+        # Detectar idioma y traducir a inglés como referencia
+        deteccion = translator.detect(palabra)
+        traduccion = translator.translate(palabra, src=idioma_origen, dest='en')
+        
+        resultado = {
+            'palabra_original': palabra,
+            'idioma_detectado': deteccion.lang,
+            'traduccion_ingles': traduccion.text,
+            'exito': True
+        }
+        
+        print(f"✅ Palabra detectada: '{palabra}'")
+        print(f"   🌍 Idioma: {deteccion.lang}")
+        print(f"   🇬🇧 Inglés: {traduccion.text}")
+        
+        return resultado
+        
+    except Exception as e:
+        print(f"❌ Error al buscar palabra: {e}")
+        return {'exito': False, 'error': str(e)}
+
+
+# ============================================
+# FUNCIÓN 2: Traducir palabra a HEBREO
+# ============================================
+
+def traducir_a_hebreo(palabra, idioma_origen='auto'):
+    """
+    Función 2: Traduce cualquier palabra al HEBREO.
+    
+    Args:
+        palabra (str): Palabra en cualquier idioma
+        idioma_origen (str): 'auto' detecta automáticamente
+    
+    Returns:
+        str: Palabra en hebreo
+    """
+    translator = Translator()
+    
+    try:
+        resultado = translator.translate(palabra, src=idioma_origen, dest='he')
+        palabra_hebrea = resultado.text
+        
+        print(f"🔄 Traducción a hebreo: '{palabra}' → '{palabra_hebrea}'")
+        
+        return palabra_hebrea
+        
+    except Exception as e:
+        print(f"❌ Error al traducir a hebreo: {e}")
+        return None
+
+
+# ============================================
+# FUNCIÓN 3: Calcular valor gemátrico de palabra hebrea
+# ============================================
+
+def calcular_gematria(palabra_hebrea):
+    """
+    Función 3: Calcula el valor gemátrico de una palabra en hebreo.
+    Suma el valor de cada letra según el sistema estándar.
+    
+    Args:
+        palabra_hebrea (str): Palabra en hebreo
+    
+    Returns:
+        dict: Valor total y desglose por letra
+    """
+    # Tabla de valores gemátricos
+    gematria = {
+        # Unidades (1-9)
+        'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5,
+        'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9,
+        # Decenas (10-90)
+        'י': 10, 'כ': 20, 'ל': 30, 'מ': 40,
+        'נ': 50, 'ס': 60, 'ע': 70, 'פ': 80, 'צ': 90,
+        # Centenas (100-400)
+        'ק': 100, 'ר': 200, 'ש': 300, 'ת': 400,
+        # Letras finales (Sofit)
+        'ך': 500, 'ם': 600, 'ן': 700, 'ף': 800, 'ץ': 900
+    }
+    
+    total = 0
+    desglose = []
+    letras_no_encontradas = []
+    
+    for letra in palabra_hebrea:
+        if letra in gematria:
+            valor = gematria[letra]
+            total += valor
+            desglose.append({'letra': letra, 'valor': valor})
+        else:
+            letras_no_encontradas.append(letra)
+    
+    resultado = {
+        'palabra_hebrea': palabra_hebrea,
+        'valor_total': total,
+        'desglose': desglose,
+        'letras_no_encontradas': letras_no_encontradas
+    }
+    
+    # Mostrar resultado
+    print(f"\n🔢 Cálculo gemátrico de: {palabra_hebrea}")
+    print("-" * 40)
+    for item in desglose:
+        print(f"   {item['letra']} = {item['valor']}")
+    print("-" * 40)
+    print(f"   TOTAL = {total}")
+    
+    if letras_no_encontradas:
+        print(f"   ⚠️ Letras no reconocidas: {letras_no_encontradas}")
+    
+    return resultado
+
+
+# ============================================
+# FUNCIÓN PRINCIPAL: Combina las 3
+# ============================================
+
+def gematria_completo(palabra, idioma_origen='auto'):
+    """
+    Función principal que ejecuta los 3 pasos:
+    1. Busca la palabra
+    2. Traduce a hebreo
+    3. Calcula el valor gemátrico
+    """
+    print("\n" + "="*60)
+    print("🕎 ANÁLISIS COMPLETO DE GEMATRIA 🕎")
+    print("="*60)
+    
+    # PASO 1: Buscar palabra
+    print("\n📍 PASO 1: Identificando la palabra...")
+    info = buscar_palabra(palabra, idioma_origen)
+    
+    if not info['exito']:
+        print("❌ No se pudo procesar la palabra")
+        return None
+    
+    # PASO 2: Traducir a hebreo
+    print("\n📍 PASO 2: Traduciendo a hebreo...")
+    palabra_hebrea = traducir_a_hebreo(palabra, idioma_origen)
+    
+    if not palabra_hebrea:
+        print("❌ No se pudo traducir a hebreo")
+        return None
+    
+    # PASO 3: Calcular gematria
+    print("\n📍 PASO 3: Calculando valor gemátrico...")
+    resultado_gematria = calcular_gematria(palabra_hebrea)
+    
+    # Resumen final
+    print("\n" + "="*60)
+    print("📋 RESUMEN FINAL")
+    print("="*60)
+    print(f"   Palabra original:  {info['palabra_original']}")
+    print(f"   Idioma detectado:  {info['idioma_detectado']}")
+    print(f"   En inglés:         {info['traduccion_ingles']}")
+    print(f"   En hebreo:         {palabra_hebrea}")
+    print(f"   Valor gemátrico:   {resultado_gematria['valor_total']}")
+    print("="*60)
+    
+    return {
+        'palabra_original': info['palabra_original'],
+        'idioma': info['idioma_detectado'],
+        'ingles': info['traduccion_ingles'],
+        'hebreo': palabra_hebrea,
+        'gematria': resultado_gematria['valor_total'],
+        'desglose': resultado_gematria['desglose']
+    }
+
+
+# ============================================
+# EJECUTAR CON INPUT DEL USUARIO
+# ============================================
+
+if __name__ == "__main__":
+    print("\n🕎 CALCULADORA DE GEMATRIA MULTI-IDIOMA 🕎")
+    print("Escribe una palabra en cualquier idioma")
+    print("(español, inglés, francés, etc.)")
+    print("Escribe 'salir' para terminar\n")
+    
+    while True:
+        palabra = input("✏️ Ingresa una palabra: ").strip()
+        
+        if palabra.lower() in ['salir', 'exit', 'quit']:
+            print("\n👋 ¡Shalom! ¡Hasta pronto!")
+            break
+        
+        if not palabra:
+            print("❌ Por favor ingresa una palabra\n")
+            continue
+        
+        resultado = gematria_completo(palabra)
+        print("\n")
