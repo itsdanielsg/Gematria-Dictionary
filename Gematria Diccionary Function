@@ -1,7 +1,6 @@
-!pip install deep-translator
+!pip install legacy-cgi googletrans==4.0.0-rc1
 
-from deep_translator import GoogleTranslator
-
+from googletrans import Translator
 
 # ============================================
 # FUNCIÓN 1: Buscar palabra en cualquier idioma
@@ -9,10 +8,13 @@ from deep_translator import GoogleTranslator
 def buscar_palabra(palabra):
     """Detecta el idioma y traduce la palabra al inglés."""
     try:
-        traduccion = GoogleTranslator(source='auto', target='en').translate(palabra)
+        translator = Translator()
+        deteccion = translator.detect(palabra)
+        traduccion = translator.translate(palabra, src='auto', dest='en')
         return {
             'original': palabra,
-            'ingles': traduccion,
+            'idioma': deteccion.lang,
+            'ingles': traduccion.text,
             'exito': True
         }
     except Exception as e:
@@ -26,7 +28,9 @@ def buscar_palabra(palabra):
 def traducir_a_hebreo(palabra):
     """Traduce cualquier palabra al hebreo."""
     try:
-        return GoogleTranslator(source='auto', target='iw').translate(palabra)
+        translator = Translator()
+        # En googletrans, el código para hebreo es 'he'
+        return translator.translate(palabra, src='auto', dest='he').text
     except Exception as e:
         print(f"Error al traducir a hebreo: {e}")
         return None
